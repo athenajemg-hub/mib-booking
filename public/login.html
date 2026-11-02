@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — MIB Photoman</title>
+<meta name="description" content="MIB Photoman — event photography and on-site printing. Book your event online.">
+<link rel="icon" href="/img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+<header id="site-header"></header>
+<main>
+  <div class="auth-wrap">
+    <aside class="auth-side dark">
+      <img src="/img/logo-white.png" alt="MIB Photoman">
+      <div><h2>Every guest seen, captured, and remembered.</h2><p class="muted" style="margin-top:1rem">Event photography + On-site printing</p></div>
+    </aside>
+    <div class="auth-main">
+      <div class="auth-box">
+        <p class="eyebrow">Welcome</p>
+        <h1>Access your account</h1>
+        <div class="tabs"><button class="tab active" data-tab="login">Login</button><button class="tab" data-tab="register">Register</button></div>
+
+        <form id="login-form">
+          <div class="field"><label for="l-email">Email</label><input id="l-email" type="email" required autocomplete="email"></div>
+          <div class="field"><label for="l-pass">Password</label><input id="l-pass" type="password" required autocomplete="current-password"></div>
+          <button class="btn btn-block" type="submit">Login</button>
+          <p class="small" style="margin-top:1.1rem"><a href="#" id="forgot-link">Forgot your password?</a></p>
+        </form>
+
+        <form id="forgot-form" hidden>
+          <p class="muted small" style="margin-bottom:1.2rem">Enter your email and we will send you a link to choose a new password.</p>
+          <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" required autocomplete="email"></div>
+          <button class="btn btn-block" type="submit">Send reset link</button>
+          <p class="small" style="margin-top:1.1rem"><a href="#" id="back-login">← Back to login</a></p>
+        </form>
+
+        <form id="register-form" hidden>
+          <div class="field"><label for="r-name">Full name</label><input id="r-name" required autocomplete="name"></div>
+          <div class="field"><label for="r-email">Email</label><input id="r-email" type="email" required autocomplete="email"></div>
+          <div class="field"><label for="r-phone">Mobile number</label><input id="r-phone" type="tel" autocomplete="tel"></div>
+          <div class="field"><label for="r-pass">Password (8+ characters)</label><input id="r-pass" type="password" minlength="8" required autocomplete="new-password"></div>
+          <button class="btn btn-block" type="submit">Create account</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+<footer id="site-footer"></footer>
+<div id="toast" aria-live="polite"></div>
+<script src="/js/app.js"></script>
+<script src="/js/login.js"></script>
+</body>
+</html>

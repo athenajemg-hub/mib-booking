@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book Your Event — MIB Photoman</title>
+<meta name="description" content="MIB Photoman — event photography and on-site printing. Book your event online.">
+<link rel="icon" href="/img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+<header id="site-header"></header>
+<main class="container page">
+  <div class="page-head"><p class="eyebrow">Reserve</p><h1>Book your event</h1><p class="lead">Five quick steps. You can adjust anything before you submit.</p></div>
+  <div id="verify-banner" class="notice" hidden>
+    <div><strong>Please confirm your email to book.</strong><br><span class="muted small">We sent a link to your inbox — check your spam folder too.</span></div>
+    <button class="btn btn-sm" id="resend-verify" type="button">Resend email</button>
+  </div>
+  <div class="book-grid">
+    <div>
+      <section class="step" id="step-pkg" style="padding:clamp(1.4rem,3vw,2.2rem)">
+        <div class="step-head"><div class="step-num"><span>1</span></div><h3>Choose a package</h3></div>
+        <div id="pkg-options" class="pick-grid"></div>
+      </section>
+
+      <section class="step" id="step-dt">
+        <div class="step-head"><div class="step-num"><span>2</span></div><h3>Date &amp; time</h3></div>
+        <div class="dt-grid">
+          <div id="calendar"></div>
+          <div class="time-panel">
+            <p class="eyebrow">Your date</p>
+            <h4 id="sel-date">Pick a date</h4>
+            <label for="start_time">Start time</label>
+            <input type="time" id="start_time" disabled>
+            <div id="time-hint" class="hint" aria-live="polite"></div>
+            <p id="busy-list" class="busy-list"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="step" id="step-details">
+        <div class="step-head"><div class="step-num"><span>3</span></div><h3>Event details</h3></div>
+        <div class="row">
+          <div class="field"><label for="event_type">Event type</label>
+            <select id="event_type"><option>Wedding</option><option>Birthday</option><option>Debut</option><option>Christening</option><option>Corporate</option><option>Other</option></select></div>
+          <div class="field"><label for="guests">Expected guests</label><input id="guests" type="number" min="1" placeholder="e.g. 120"></div>
+        </div>
+        <div class="field"><label for="venue">Venue</label><input id="venue" placeholder="Venue name and city"></div>
+        <div class="field" style="margin:0"><label for="notes">Notes (optional)</label><textarea id="notes" placeholder="Theme, frame colors, special requests…"></textarea></div>
+      </section>
+
+      <section class="step" id="step-layout">
+        <div class="step-head"><div class="step-num"><span>4</span></div><h3>Print layout</h3></div>
+        <div id="layouts" class="lay-grid" role="radiogroup" aria-label="Print layout"></div>
+      </section>
+
+      <section class="step" id="step-addons">
+        <div class="step-head"><div class="step-num"><span>5</span></div><h3>Add-ons</h3><span class="opt">Optional</span></div>
+        <div id="addons"></div>
+      </section>
+    </div>
+
+    <aside class="summary">
+      <h3>Your booking</h3>
+      <div class="progress"><i id="progress"></i></div>
+      <div id="summary-lines"></div>
+      <div class="total"><span>Total</span><span id="total">₱0</span></div>
+      <p id="fee-note" class="small" style="margin-bottom:.9rem"></p>
+      <p class="small" style="opacity:.7;margin-bottom:1.2rem">Transportation fee and crew meals are not included. Our team confirms the final price.</p>
+      <button class="btn btn-block" id="submit-booking">Submit booking request</button>
+    </aside>
+  </div>
+</main>
+<footer id="site-footer"></footer>
+<div id="toast" aria-live="polite"></div>
+<script src="/js/app.js"></script>
+<script src="/js/book.js"></script>
+</body>
+</html>

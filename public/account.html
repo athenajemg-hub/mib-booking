@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account Settings — MIB Photoman</title>
+<meta name="description" content="MIB Photoman — event photography and on-site printing. Book your event online.">
+<link rel="icon" href="/img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+<header id="site-header"></header>
+<main class="container page">
+  <div class="page-head"><p class="eyebrow">Account</p><h1>Account settings</h1></div>
+  <div class="settings-grid">
+    <form id="profile-form" class="panel">
+      <h3>Profile</h3>
+      <div class="field"><label for="p-name">Full name</label><input id="p-name" required></div>
+      <div class="field"><label for="p-email">Email</label><input id="p-email" disabled><p id="verify-status" class="small" style="margin-top:.5rem"></p></div>
+      <div class="field"><label for="p-phone">Mobile number</label><input id="p-phone" type="tel"></div>
+      <button class="btn" type="submit">Save profile</button>
+    </form>
+    <div>
+      <form id="security-form" class="panel">
+        <h3>Password</h3>
+        <div class="field"><label for="p-pass">New password (8+ characters)</label><input id="p-pass" type="password" minlength="8" required autocomplete="new-password"></div>
+        <button class="btn" type="submit">Update password</button>
+      </form>
+      <form id="notify-form" class="panel">
+        <h3>Notifications</h3>
+        <div class="field check"><input id="p-notify" type="checkbox"><label for="p-notify">Email me booking updates and reminders</label></div>
+        <button class="btn" type="submit">Save preference</button>
+      </form>
+      <p class="muted small"><a href="/bookings.html">← Back to My Bookings</a></p>
+    </div>
+  </div>
+</main>
+<footer id="site-footer"></footer>
+<div id="toast" aria-live="polite"></div>
+<script src="/js/app.js"></script>
+<script src="/js/account.js"></script>
+</body>
+</html>

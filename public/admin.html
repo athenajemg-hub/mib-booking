@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — MIB Photoman</title>
+<meta name="description" content="MIB Photoman — event photography and on-site printing. Book your event online.">
+<link rel="icon" href="/img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+<header id="site-header"></header>
+<main class="container page">
+  <div class="page-head"><p class="eyebrow" id="admin-role">Staff</p><h1>Control room</h1></div>
+  <div class="tabs">
+    <button class="tab active" data-tab="dash">Dashboard</button>
+    <button class="tab" data-tab="reservations">Reservations</button>
+    <button class="tab" data-tab="manage" id="manage-tab">Services &amp; capacity</button>
+  </div>
+
+  <div id="tab-dash"></div>
+
+  <div id="tab-reservations" hidden>
+    <div class="toolbar">
+      <select id="status-filter">
+        <option value="">All reservations</option><option value="pending">Pending</option><option value="approved">Approved</option>
+        <option value="rejected">Rejected</option><option value="cancelled">Cancelled</option><option value="changes">Change requests</option>
+      </select>
+    </div>
+    <div id="res-table"></div>
+  </div>
+
+  <div id="tab-manage" hidden>
+    <div class="panel"><h3>Packages &amp; duration</h3><div id="pkg-admin"></div></div>
+    <div class="panel"><h3>Booking &amp; payment settings</h3>
+      <form id="settings-form">
+        <div class="row" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+          <div class="field"><label for="s-crews">Crews (events at once)</label><input id="s-crews" type="number" min="1" required></div>
+          <div class="field"><label for="s-deposit">Reservation fee (% of total)</label><input id="s-deposit" type="number" min="0" max="100" step="1" required></div>
+        </div>
+        <div class="field"><label for="s-instructions">Payment instructions shown to clients</label>
+          <textarea id="s-instructions" maxlength="600" placeholder="e.g. GCash: 09XX XXX XXXX (Account name)&#10;BDO: 0000 0000 0000 (Account name)"></textarea></div>
+        <button class="btn" type="submit">Save settings</button>
+      </form>
+      <p class="muted small" style="margin-top:1rem">Clients choose any start time they like; a booking is only refused if it would overlap as many events as you have crews. The reservation fee is calculated when the client books.</p>
+    </div>
+    <div class="split">
+      <div class="panel"><h3>Holidays &amp; blocked dates</h3><div id="blocked-list"></div>
+        <form id="block-form" class="row" style="margin-top:1.2rem;grid-template-columns:1fr 1fr auto;align-items:end">
+          <div><label for="bd-date">Date</label><input id="bd-date" type="date" required></div>
+          <div><label for="bd-reason">Reason</label><input id="bd-reason" placeholder="Holiday"></div>
+          <button class="btn" type="submit">Block</button>
+        </form></div>
+      <div class="panel"><h3>Add staff account</h3>
+        <form id="staff-form">
+          <div class="field"><label for="sf-name">Name</label><input id="sf-name" required></div>
+          <div class="field"><label for="sf-email">Email</label><input id="sf-email" type="email" required></div>
+          <div class="field"><label for="sf-pass">Password (8+)</label><input id="sf-pass" type="password" minlength="8" required></div>
+          <button class="btn" type="submit">Create staff</button>
+        </form></div>
+    </div>
+  </div>
+</main>
+<footer id="site-footer"></footer>
+<div id="toast" aria-live="polite"></div>
+<script src="/js/app.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

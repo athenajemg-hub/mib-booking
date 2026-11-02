@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Bookings — MIB Photoman</title>
+<meta name="description" content="MIB Photoman — event photography and on-site printing. Book your event online.">
+<link rel="icon" href="/img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+<header id="site-header"></header>
+<main class="container page">
+  <div class="page-head"><p class="eyebrow">Your reservations</p><h1>My bookings</h1></div>
+  <div class="toolbar">
+    <div class="tabs" style="margin:0"><button class="tab active" data-tab="upcoming">Upcoming</button><button class="tab" data-tab="past">Past &amp; closed</button></div>
+    <a class="btn btn-sm" href="/book.html">+ New booking</a>
+  </div>
+  <div id="bookings"><div class="skel" style="min-height:220px"></div></div>
+</main>
+<footer id="site-footer"></footer>
+<div id="toast" aria-live="polite"></div>
+<script src="/js/app.js"></script>
+<script src="/js/bookings.js"></script>
+</body>
+</html>
