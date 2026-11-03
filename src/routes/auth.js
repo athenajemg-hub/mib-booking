@@ -63,21 +63,56 @@ router.post('/resend-verification', auth, wrap(async (req, res) => {
 const sha = (t) => crypto.createHash('sha256').update(t).digest('hex');
 
 // Step 1: ask for a reset link. The answer is always the same, so nobody can probe which emails exist.
+
 router.post('/forgot', wrap(async (req, res) => {
   const email = String(req.body.email || '').toLowerCase().trim();
-  if (!/^\S+@\S+\.\S+$/.test(email)) return res.status(400).json({ error: 'Please enter a valid email address.' });
-  const { rows: [u] } = await query('SELECT * FROM users WHERE email=$1', [email]);
-  const sentRecently = u && u.reset_expires && new Date(u.reset_expires).getTime() - 3600000 + 60000 > Date.now();
+
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
+    return res.status(400).json({
+      error: 'Please enter a valid email address.'
+    });
+  }
+
+  if (!emailConfigured()) {
+    console.error('Password reset email unavailable: email is not configured.');
+    return res.status(503).json({
+      error: 'Password reset is temporarily unavailable. Please contact us.'
+    });
+  }
+
+  const { rows: [u] } = await query(
+    'SELECT * FROM users WHERE email=$1',
+    [email]
+  );
+
+  const sentRecently = u && u.reset_expires &&
+    new Date(u.reset_expires).getTime() - 3600000 + 60000 > Date.now();
+
   if (u && !sentRecently) {
     const token = crypto.randomBytes(32).toString('hex');
-    await query("UPDATE users SET reset_token_hash=$1, reset_expires=NOW() + INTERVAL '1 hour' WHERE id=$2", [sha(token), u.id]);
-    sendMail(u.email, 'Reset your password - MIB Photoman',
+
+    await query(
+      "UPDATE users SET reset_token_hash=$1, reset_expires=NOW() + INTERVAL '1 hour' WHERE id=$2",
+      [sha(token), u.id]
+    );
+
+    const sent = await sendMail(
+      u.email,
+      'Reset your password - MIB Photoman',
       `Hi ${u.name},\n\nWe received a request to reset your password. Open this link to choose a new one (valid for 1 hour):\n\n` +
       `${baseUrl(req)}/reset.html?token=${token}\n\nIf you didn't ask for this, you can ignore this email and your password will stay the same.\n\nMIB Photoman`
-    ).catch(console.error);
+    );
+
+    if (!sent) {
+      console.error('Password reset email could not be sent.');
+    }
   }
-  res.json({ message: 'If that email is registered, we sent a link to reset your password. It expires in 1 hour.' });
+
+  res.json({
+    message: 'If that email is registered, we sent a link to reset your password. It expires in 1 hour.'
+  });
 }));
+
 
 // Step 2: choose a new password with the link from the email
 router.post('/reset', wrap(async (req, res) => {
