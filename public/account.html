@@ -19,7 +19,7 @@
   <div class="settings-grid">
     <form id="profile-form" class="panel">
       <h3>Profile</h3>
-      <div class="field"><label for="p-name">Full name</label><input id="p-name" required></div>
+      <div class="field"><label for="p-name">Full name</label><input id="p-name" minlength="20" maxlength="40" required></div>
       <div class="field"><label for="p-email">Email</label><input id="p-email" disabled><p id="verify-status" class="small" style="margin-top:.5rem"></p></div>
       <div class="field"><label for="p-phone">Mobile number</label><input id="p-phone" type="tel"></div>
       <button class="btn" type="submit">Save profile</button>
@@ -27,7 +27,7 @@
     <div>
       <form id="security-form" class="panel">
         <h3>Password</h3>
-        <div class="field"><label for="p-pass">New password (8+ characters)</label><input id="p-pass" type="password" minlength="8" required autocomplete="new-password"></div>
+        <div class="field"><label for="p-pass">New password (8–16 characters)</label><input id="p-pass" type="password" minlength="8" maxlength="16" required autocomplete="new-password"></div>
         <button class="btn" type="submit">Update password</button>
       </form>
       <form id="notify-form" class="panel">
