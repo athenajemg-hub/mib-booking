@@ -71,7 +71,7 @@ const sha = (t) => crypto.createHash('sha256').update(t).digest('hex');
 router.post('/forgot', wrap(async (req, res) => {
   const email = String(req.body.email || '').toLowerCase().trim();
 
-  if (!/^\S+@\S+\.\S+$/.test(email)) {
+  if (email.length > 160 || !/^\S+@\S+\.\S+$/.test(email)) {
     return res.status(400).json({
       error: 'Please enter a valid email address.'
     });
@@ -133,7 +133,9 @@ router.post('/reset', wrap(async (req, res) => {
 
 router.post('/login', wrap(async (req, res) => {
   const { email, password } = req.body;
-  const { rows } = await query('SELECT * FROM users WHERE email=$1', [String(email || '').toLowerCase().trim()]);
+  const normalizedEmail = String(email || '').toLowerCase().trim();
+  if (normalizedEmail.length > 160) return res.status(400).json({ error: 'Email must be no more than 160 characters.' });
+  const { rows } = await query('SELECT * FROM users WHERE email=$1', [normalizedEmail]);
   const u = rows[0];
   if (!u || !(await bcrypt.compare(password || '', u.password_hash)))
     return res.status(401).json({ error: 'Incorrect email or password.' });
