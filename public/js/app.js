@@ -159,4 +159,27 @@ function renderFooter() {
     </div>`;
 }
 
-document.addEventListener('DOMContentLoaded', () => { renderHeader(); renderFooter(); observeReveal(); });
+function initPasswordVisibility() {
+  document.querySelectorAll('input[type="password"]').forEach((input) => {
+    if (input.dataset.visibilityReady) return;
+    const field = input.closest('.field') || input.parentElement;
+    if (!field) return;
+    input.dataset.visibilityReady = '1';
+    field.classList.add('password-field');
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'password-toggle';
+    toggle.setAttribute('aria-label', 'Show password');
+    toggle.setAttribute('aria-pressed', 'false');
+    toggle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+    toggle.addEventListener('click', () => {
+      const showing = input.type === 'password';
+      input.type = showing ? 'text' : 'password';
+      toggle.setAttribute('aria-label', showing ? 'Hide password' : 'Show password');
+      toggle.setAttribute('aria-pressed', String(showing));
+    });
+    field.appendChild(toggle);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => { renderHeader(); renderFooter(); observeReveal(); initPasswordVisibility(); });
