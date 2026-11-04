@@ -57,9 +57,9 @@
         </form></div>
       <div class="panel"><h3>Add staff account</h3>
         <form id="staff-form">
-          <div class="field"><label for="sf-name">Name</label><input id="sf-name" required></div>
-          <div class="field"><label for="sf-email">Email</label><input id="sf-email" type="email" required></div>
-          <div class="field"><label for="sf-pass">Password (8+)</label><input id="sf-pass" type="password" minlength="8" required></div>
+          <div class="field"><label for="sf-name">Name</label><input id="sf-name" minlength="20" maxlength="40" required></div>
+          <div class="field"><label for="sf-email">Email</label><input id="sf-email" type="email" maxlength="160" required></div>
+          <div class="field"><label for="sf-pass">Password (8–16)</label><input id="sf-pass" type="password" minlength="8" maxlength="16" required></div>
           <button class="btn" type="submit">Create staff</button>
         </form></div>
     </div>
