@@ -6,6 +6,9 @@ const { sign, auth } = require('../middleware/auth');
 const { sendMail, emailConfigured } = require('../mailer');
 const { wrap, baseUrl } = require('../lib');
 
+const validName = (value) => typeof value === 'string' && value.trim().length >= 20 && value.trim().length <= 40;
+const validPassword = (value) => typeof value === 'string' && value.length >= 8 && value.length <= 16;
+
 const pub = (u) => ({ id: u.id, name: u.name, email: u.email, phone: u.phone, role: u.role, notify_email: u.notify_email, email_verified: u.email_verified });
 
 async function sendVerification(req, user, token) {
@@ -18,8 +21,9 @@ async function sendVerification(req, user, token) {
 router.post('/register', wrap(async (req, res) => {
   const { name, email, phone, password } = req.body;
   if (!name?.trim() || !email || !password) return res.status(400).json({ error: 'Name, email and password are required.' });
-  if (!/^\S+@\S+\.\S+$/.test(email)) return res.status(400).json({ error: 'Please enter a valid email address.' });
-  if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+  if (!validName(name)) return res.status(400).json({ error: 'Full name must be 20 to 40 characters.' });
+  if (email.length > 160 || !/^\S+@\S+\.\S+$/.test(email)) return res.status(400).json({ error: 'Please enter a valid email address of no more than 160 characters.' });
+  if (!validPassword(password)) return res.status(400).json({ error: 'Password must be 8 to 16 characters.' });
 
   // Email confirmation is only required when the site can actually send email
   const needsVerify = emailConfigured();
@@ -118,7 +122,7 @@ router.post('/forgot', wrap(async (req, res) => {
 router.post('/reset', wrap(async (req, res) => {
   const { token, password } = req.body;
   if (!/^[a-f0-9]{64}$/.test(String(token || ''))) return res.status(400).json({ error: 'This reset link is not valid.' });
-  if (!password || password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+  if (!validPassword(password)) return res.status(400).json({ error: 'Password must be 8 to 16 characters.' });
   const r = await query(
     `UPDATE users SET password_hash=$1, reset_token_hash=NULL, reset_expires=NULL, email_verified=TRUE
      WHERE reset_token_hash=$2 AND reset_expires > NOW() RETURNING id`,
@@ -145,9 +149,12 @@ router.get('/me', auth, wrap(async (req, res) => {
 router.put('/me', auth, wrap(async (req, res) => {
   const { name, phone, notify_email, new_password } = req.body;
   if (!name?.trim()) return res.status(400).json({ error: 'Name is required.' });
+  const { rows: [currentUser] } = await query('SELECT name FROM users WHERE id=$1', [req.user.id]);
+  if (!currentUser) return res.status(401).json({ error: 'Account not found.' });
+  if (name.trim() !== currentUser.name && !validName(name)) return res.status(400).json({ error: 'Full name must be 20 to 40 characters.' });
   let hash = null;
   if (new_password) {
-    if (new_password.length < 8) return res.status(400).json({ error: 'New password must be at least 8 characters.' });
+    if (!validPassword(new_password)) return res.status(400).json({ error: 'New password must be 8 to 16 characters.' });
     hash = await bcrypt.hash(new_password, 10);
   }
   const { rows } = await query(
