@@ -62,7 +62,7 @@
           <td><strong>${esc(b.customer_name)}</strong><br>${esc(b.customer_email)}<br>${esc(b.customer_phone || '')}</td>
           <td>${esc(b.package_name)}<br><small class="muted">${esc(b.layout || 'No layout')}</small>${b.addons.length ? `<br><small class="muted">+${b.addons.length} add-on(s)</small>` : ''}</td>
           <td>${fmtDate(b.event_date)}<br><small>${b.start_time ? timeRange(b.start_time, b.hours || 0) : ''}</small></td>
-          <td>${esc(b.venue)}</td>
+          <td>${esc(b.venue)}${b.notes ? `<div class="note-box" style="margin-top:.5rem"><strong>Client note:</strong><br>${esc(b.notes).replace(/\n/g, '<br>')}</div>` : '<small class="muted">No client note</small>'}</td>
           <td>${peso(b.total)}</td>
           <td><span class="badge ${b.payment_status}">${PAY_LABEL[b.payment_status]}</span>
             <br><small>${peso(b.amount_paid)} paid · fee ${peso(b.deposit_amount || 0)}</small>
