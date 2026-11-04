@@ -4,6 +4,9 @@ const { pool, query } = require('../db');
 const { auth, requireRole } = require('../middleware/auth');
 const { wrap, bail, getSettings, BOOKING_SELECT, reserveCheck, notifyBooking } = require('../lib');
 
+const validName = (value) => typeof value === 'string' && value.trim().length >= 20 && value.trim().length <= 40;
+const validPassword = (value) => typeof value === 'string' && value.length >= 8 && value.length <= 16;
+
 router.use(auth, requireRole('staff', 'admin'));
 const adminOnly = requireRole('admin');
 
@@ -187,8 +190,8 @@ router.delete('/blocked/:date', adminOnly, wrap(async (req, res) => {
 
 router.post('/staff', adminOnly, wrap(async (req, res) => {
   const { name, email, password } = req.body;
-  if (!name?.trim() || !/^\S+@\S+\.\S+$/.test(email || '') || (password || '').length < 8)
-    return res.status(400).json({ error: 'Enter a name, valid email and a password of 8+ characters.' });
+  if (!validName(name) || !/^\S+@\S+\.\S+$/.test(email || '') || email.length > 160 || !validPassword(password))
+    return res.status(400).json({ error: 'Enter a full name of 20–40 characters, a valid email of up to 160 characters, and a password of 8–16 characters.' });
   try {
     await query(`INSERT INTO users(name,email,password_hash,role) VALUES($1,$2,$3,'staff')`,
       [name.trim(), email.toLowerCase().trim(), await bcrypt.hash(password, 10)]);
