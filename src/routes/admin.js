@@ -10,6 +10,42 @@ const validPassword = (value) => typeof value === 'string' && value.length >= 8 
 router.use(auth, requireRole('staff', 'admin'));
 const adminOnly = requireRole('admin');
 
+let auditTableReady;
+async function ensureAuditTable() {
+  if (!auditTableReady) {
+    auditTableReady = query(`
+      CREATE TABLE IF NOT EXISTS admin_audit_logs (
+        id BIGSERIAL PRIMARY KEY,
+        actor_id INT REFERENCES users(id) ON DELETE SET NULL,
+        actor_name VARCHAR(120) NOT NULL,
+        actor_role VARCHAR(10) NOT NULL,
+        action VARCHAR(80) NOT NULL,
+        entity_type VARCHAR(40) NOT NULL,
+        entity_id INT,
+        details JSONB NOT NULL DEFAULT '{}'::jsonb,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_admin_audit_created ON admin_audit_logs(created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_admin_audit_entity ON admin_audit_logs(entity_type, entity_id);
+    `);
+  }
+  return auditTableReady;
+}
+
+async function recordAudit(req, action, entityType, entityId, details = {}) {
+  try {
+    await ensureAuditTable();
+    await query(
+      `INSERT INTO admin_audit_logs(actor_id, actor_name, actor_role, action, entity_type, entity_id, details)
+       VALUES($1,$2,$3,$4,$5,$6,$7::jsonb)`,
+      [req.user.id, req.user.name || 'Unknown user', req.user.role, action, entityType, entityId || null, JSON.stringify(details)]
+    );
+  } catch (err) {
+    // Audit failures must not reverse an action that has already succeeded.
+    console.error('Audit log write failed:', err.message);
+  }
+}
+
 /* ---------- Reservations & approval workflow (staff + admin) ---------- */
 
 router.get('/bookings', wrap(async (req, res) => {
@@ -22,7 +58,7 @@ router.get('/bookings', wrap(async (req, res) => {
   res.json(rows);
 }));
 
-router.get('/staff', wrap(async (req, res) => {
+router.get('/audit-logs', adminOnly, wrap(async (req, res) => {\n  await ensureAuditTable();\n  const { rows } = await query(\n    `SELECT id, actor_name, actor_role, action, entity_type, entity_id, details, created_at\n     FROM admin_audit_logs ORDER BY created_at DESC LIMIT 200`\n  );\n  res.json(rows);\n}));\n\nrouter.get('/staff', wrap(async (req, res) => {
   const { rows } = await query(`SELECT id, name, role FROM users WHERE role IN ('staff','admin') ORDER BY name`);
   res.json(rows);
 }));
@@ -34,7 +70,7 @@ router.post('/bookings/:id/decision', wrap(async (req, res) => {
   const r = await query(`UPDATE bookings SET status=$1 WHERE id=$2 AND status='pending' RETURNING id`,
     [action === 'approve' ? 'approved' : 'rejected', id]);
   if (!r.rowCount) return res.status(409).json({ error: 'Only pending bookings can be approved or rejected.' });
-  notifyBooking(id, action === 'approve'
+  await recordAudit(req, action === 'approve' ? 'booking.approved' : 'booking.rejected', 'booking', id);\n  notifyBooking(id, action === 'approve'
     ? 'Great news! Your booking has been approved.'
     : 'Unfortunately, we are unable to accept your booking request.').catch(console.error);
   res.json({ ok: true });
