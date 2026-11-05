@@ -19,7 +19,7 @@
   <div class="tabs">
     <button class="tab active" data-tab="dash">Dashboard</button>
     <button class="tab" data-tab="reservations">Reservations</button>
-    <button class="tab" data-tab="calendar">Calendar</button>
+    <button class="tab" data-tab="calendar">Calendar</button>\n    <button class="tab" data-tab="audit" id="audit-tab">Audit logs</button>
     <button class="tab" data-tab="manage" id="manage-tab">Services &amp; capacity</button>
   </div>
 
@@ -37,7 +37,7 @@
     </div>
   </div>
 
-  <div id="tab-reservations" hidden>
+  <div id="tab-audit" hidden>\n    <div class="panel">\n      <div class="row" style="justify-content:space-between;align-items:center">\n        <h3>Admin activity history</h3>\n        <button class="btn btn-sm btn-ghost" id="audit-refresh" type="button">Refresh</button>\n      </div>\n      <p class="muted small">Latest 200 administrative actions. Passwords and payment screenshots are never recorded here.</p>\n      <div id="audit-table"></div>\n    </div>\n  </div>\n\n  <div id="tab-reservations" hidden>
     <div class="toolbar">
       <select id="status-filter">
         <option value="">All reservations</option><option value="pending">Pending</option><option value="approved">Approved</option>
