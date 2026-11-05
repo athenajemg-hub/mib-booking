@@ -8,6 +8,7 @@ const { wrap, baseUrl } = require('../lib');
 
 const validName = (value) => typeof value === 'string' && value.trim().length >= 20 && value.trim().length <= 40;
 const validPassword = (value) => typeof value === 'string' && value.length >= 8 && value.length <= 16;
+const validPhone = (value) => !value || (typeof value === 'string' && /^09\\d{9}$/.test(value.trim()));
 
 const pub = (u) => ({ id: u.id, name: u.name, email: u.email, phone: u.phone, role: u.role, notify_email: u.notify_email, email_verified: u.email_verified });
 
@@ -24,6 +25,7 @@ router.post('/register', wrap(async (req, res) => {
   if (!validName(name)) return res.status(400).json({ error: 'Full name must be 20 to 40 characters.' });
   if (email.length > 160 || !/^\S+@\S+\.\S+$/.test(email)) return res.status(400).json({ error: 'Please enter a valid email address of no more than 160 characters.' });
   if (!validPassword(password)) return res.status(400).json({ error: 'Password must be 8 to 16 characters.' });
+  if (!validPhone(phone)) return res.status(400).json({ error: 'Enter a valid Philippine mobile number (11 digits, starting with 09).' });
 
   // Email confirmation is only required when the site can actually send email
   const needsVerify = emailConfigured();
@@ -151,6 +153,7 @@ router.get('/me', auth, wrap(async (req, res) => {
 router.put('/me', auth, wrap(async (req, res) => {
   const { name, phone, notify_email, new_password } = req.body;
   if (!name?.trim()) return res.status(400).json({ error: 'Name is required.' });
+  if (!validPhone(phone)) return res.status(400).json({ error: 'Enter a valid Philippine mobile number (11 digits, starting with 09).' });
   const { rows: [currentUser] } = await query('SELECT name FROM users WHERE id=$1', [req.user.id]);
   if (!currentUser) return res.status(401).json({ error: 'Account not found.' });
   if (name.trim() !== currentUser.name && !validName(name)) return res.status(400).json({ error: 'Full name must be 20 to 40 characters.' });
