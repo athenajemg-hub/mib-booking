@@ -204,6 +204,7 @@ router.put('/packages/:id', adminOnly, wrap(async (req, res) => {
   const { price, hours, active } = req.body;
   if (!(price >= 0) || !(hours > 0)) return res.status(400).json({ error: 'Enter a valid price and duration.' });
   await query('UPDATE packages SET price=$1, hours=$2, active=$3 WHERE id=$4', [price, hours, !!active, +req.params.id]);
+  await recordAudit(req, 'package.updated', 'package', +req.params.id, { price, hours, active: !!active });
   res.json({ ok: true });
 }));
 
@@ -218,6 +219,7 @@ router.put('/settings', adminOnly, wrap(async (req, res) => {
   const entries = { crews: String(crews), deposit_percent: String(pct), payment_instructions: instructions };
   for (const [k, v] of Object.entries(entries))
     await query('INSERT INTO settings(key,value) VALUES($1,$2) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value', [k, v]);
+  await recordAudit(req, 'settings.updated', 'settings', null, { crews, deposit_percent: pct });
   res.json({ ok: true });
 }));
 
@@ -229,11 +231,13 @@ router.post('/blocked', adminOnly, wrap(async (req, res) => {
   const { date, reason } = req.body;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '')) return res.status(400).json({ error: 'Choose a date.' });
   await query('INSERT INTO blocked_dates(date,reason) VALUES($1,$2) ON CONFLICT (date) DO UPDATE SET reason=$2', [date, reason || null]);
+  await recordAudit(req, 'blocked_date.added_or_updated', 'blocked_date', null, { date, reason: reason || null });
   res.status(201).json({ ok: true });
 }));
 
 router.delete('/blocked/:date', adminOnly, wrap(async (req, res) => {
   await query('DELETE FROM blocked_dates WHERE date=$1', [req.params.date]);
+  await recordAudit(req, 'blocked_date.removed', 'blocked_date', null, { date: req.params.date });
   res.json({ ok: true });
 }));
 
@@ -242,8 +246,9 @@ router.post('/staff', adminOnly, wrap(async (req, res) => {
   if (!validName(name) || !/^\S+@\S+\.\S+$/.test(email || '') || email.length > 160 || !validPassword(password))
     return res.status(400).json({ error: 'Enter a full name of 20–40 characters, a valid email of up to 160 characters, and a password of 8–16 characters.' });
   try {
-    await query(`INSERT INTO users(name,email,password_hash,role) VALUES($1,$2,$3,'staff')`,
+    const created = await query(`INSERT INTO users(name,email,password_hash,role) VALUES($1,$2,$3,'staff') RETURNING id`,
       [name.trim(), email.toLowerCase().trim(), await bcrypt.hash(password, 10)]);
+    await recordAudit(req, 'staff.created', 'user', created.rows[0].id, { name: name.trim(), email: email.toLowerCase().trim() });
     res.status(201).json({ ok: true });
   } catch (e) {
     if (e.code === '23505') return res.status(409).json({ error: 'That email is already registered.' });
