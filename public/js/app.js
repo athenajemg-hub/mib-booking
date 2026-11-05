@@ -191,7 +191,7 @@ function initSupportWidget() {
     <button class="mib-support-trigger" type="button" aria-label="Open customer support" aria-expanded="false" aria-controls="mib-support-panel">
       <span aria-hidden="true">?</span>
     </button>
-    <section class="mib-support-panel" id="mib-support-panel" aria-label="Customer support" hidden>
+    <section class="mib-support-panel" id="mib-support-panel" aria-label="Customer support" aria-hidden="true">
       <div class="mib-support-head">
         <div><span class="mib-support-kicker">MIB PHOTOMAN</span><h2>How can we help?</h2><p>Find an answer or contact our team.</p></div>
         <button class="mib-support-close" type="button" aria-label="Close support panel">×</button>
@@ -214,12 +214,17 @@ function initSupportWidget() {
   const trigger = root.querySelector('.mib-support-trigger');
   const panel = root.querySelector('.mib-support-panel');
   const close = root.querySelector('.mib-support-close');
+  const icon = trigger.querySelector('span');
   const setOpen = (open) => {
-    panel.hidden = !open;
+    panel.classList.toggle('is-open', open);
+    panel.setAttribute('aria-hidden', String(!open));
+    trigger.classList.toggle('is-active', open);
     trigger.setAttribute('aria-expanded', String(open));
     trigger.setAttribute('aria-label', open ? 'Close customer support' : 'Open customer support');
+    icon.textContent = open ? '×' : '?';
   };
-  trigger.addEventListener('click', () => setOpen(panel.hidden));
+  setOpen(false);
+  trigger.addEventListener('click', () => setOpen(!panel.classList.contains('is-open')));
   close.addEventListener('click', () => setOpen(false));
   document.addEventListener('click', (event) => {
     if (!root.contains(event.target)) setOpen(false);
