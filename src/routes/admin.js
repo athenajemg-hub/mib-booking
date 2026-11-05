@@ -58,7 +58,16 @@ router.get('/bookings', wrap(async (req, res) => {
   res.json(rows);
 }));
 
-router.get('/audit-logs', adminOnly, wrap(async (req, res) => {\n  await ensureAuditTable();\n  const { rows } = await query(\n    `SELECT id, actor_name, actor_role, action, entity_type, entity_id, details, created_at\n     FROM admin_audit_logs ORDER BY created_at DESC LIMIT 200`\n  );\n  res.json(rows);\n}));\n\nrouter.get('/staff', wrap(async (req, res) => {
+router.get('/audit-logs', adminOnly, wrap(async (req, res) => {
+  await ensureAuditTable();
+  const { rows } = await query(
+    `SELECT id, actor_name, actor_role, action, entity_type, entity_id, details, created_at
+     FROM admin_audit_logs ORDER BY created_at DESC LIMIT 200`
+  );
+  res.json(rows);
+}));
+
+router.get('/staff', wrap(async (req, res) => {
   const { rows } = await query(`SELECT id, name, role FROM users WHERE role IN ('staff','admin') ORDER BY name`);
   res.json(rows);
 }));
@@ -70,7 +79,8 @@ router.post('/bookings/:id/decision', wrap(async (req, res) => {
   const r = await query(`UPDATE bookings SET status=$1 WHERE id=$2 AND status='pending' RETURNING id`,
     [action === 'approve' ? 'approved' : 'rejected', id]);
   if (!r.rowCount) return res.status(409).json({ error: 'Only pending bookings can be approved or rejected.' });
-  await recordAudit(req, action === 'approve' ? 'booking.approved' : 'booking.rejected', 'booking', id);\n  notifyBooking(id, action === 'approve'
+  await recordAudit(req, action === 'approve' ? 'booking.approved' : 'booking.rejected', 'booking', id);
+  notifyBooking(id, action === 'approve'
     ? 'Great news! Your booking has been approved.'
     : 'Unfortunately, we are unable to accept your booking request.').catch(console.error);
   res.json({ ok: true });
