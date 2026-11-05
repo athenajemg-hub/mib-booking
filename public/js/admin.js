@@ -9,10 +9,10 @@
   if (!isAdmin) $('manage-tab').style.display = 'none';
 
   /* ---- Tabs ---- */
-  const loaders = { dash: loadDash, reservations: loadReservations, manage: loadManage };
+  const loaders = { dash: loadDash, reservations: loadReservations, calendar: loadCalendar, manage: loadManage };
   document.querySelectorAll('.tab').forEach((t) => (t.onclick = () => {
     document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('active', x === t));
-    ['dash', 'reservations', 'manage'].forEach((k) => ($('tab-' + k).hidden = k !== t.dataset.tab));
+    ['dash', 'reservations', 'calendar', 'manage'].forEach((k) => ($('tab-' + k).hidden = k !== t.dataset.tab));
     loaders[t.dataset.tab]();
   }));
 
@@ -46,6 +46,50 @@
         </div>`;
     } catch (e) { toast(e.message, true); }
   }
+
+  /* ---- Monthly booking calendar ---- */
+  let calendarRows = null;
+  let calendarMonth = new Date();
+  const monthKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const dateKey = (y, m, day) => `${y}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+  async function loadCalendar() {
+    try {
+      if (!calendarRows) calendarRows = await api('/admin/bookings');
+      renderCalendar();
+    } catch (e) { toast(e.message, true); }
+  }
+
+  function renderCalendar() {
+    const y = calendarMonth.getFullYear(), m = calendarMonth.getMonth();
+    $('cal-title').textContent = calendarMonth.toLocaleDateString('en-PH', { month: 'long', year: 'numeric' });
+    const first = new Date(y, m, 1).getDay();
+    const days = new Date(y, m + 1, 0).getDate();
+    const today = new Date().toLocaleDateString('en-CA');
+    const byDate = {};
+    (calendarRows || []).forEach((b) => {
+      if (b.event_date && b.event_date.startsWith(monthKey(calendarMonth))) (byDate[b.event_date] ||= []).push(b);
+    });
+    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    let out = weekdays.map((d) => `<div class="admin-cal-weekday">${d}</div>`).join('');
+    for (let i = 0; i < first; i++) out += '<div class="admin-cal-empty" aria-hidden="true"></div>';
+    for (let day = 1; day <= days; day++) {
+      const key = dateKey(y, m, day), events = byDate[key] || [];
+      out += `<section class="admin-cal-day ${key === today ? 'is-today' : ''}">
+        <strong class="admin-cal-date">${day}</strong>
+        <div class="admin-cal-events">${events.length ? events.map((b) => `
+          <div class="admin-cal-event ${esc(b.status)}" title="${esc(b.customer_name)} · ${esc(b.package_name)}">
+            <span>${esc(b.start_time ? fmtTime(b.start_time) : '')}</span>
+            <b>#${b.id} ${esc(b.customer_name || 'Customer')}</b>
+            <small>${esc(b.package_name || '')}</small>
+          </div>`).join('') : '<span class="admin-cal-none">—</span>'}</div>
+      </section>`;
+    }
+    $('admin-calendar').innerHTML = out;
+  }
+
+  $('cal-prev').onclick = () => { calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1); loadCalendar(); };
+  $('cal-next').onclick = () => { calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1); loadCalendar(); };
 
   /* ---- Reservations / approval workflow ---- */
   async function loadReservations() {
