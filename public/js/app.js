@@ -182,4 +182,51 @@ function initPasswordVisibility() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => { renderHeader(); renderFooter(); observeReveal(); initPasswordVisibility(); });
+
+function initSupportWidget() {
+  if (location.pathname === '/admin.html' || document.getElementById('mib-support')) return;
+  const root = document.createElement('div');
+  root.id = 'mib-support';
+  root.innerHTML = `
+    <button class="mib-support-trigger" type="button" aria-label="Open customer support" aria-expanded="false" aria-controls="mib-support-panel">
+      <span aria-hidden="true">?</span>
+    </button>
+    <section class="mib-support-panel" id="mib-support-panel" aria-label="Customer support" hidden>
+      <div class="mib-support-head">
+        <div><span class="mib-support-kicker">MIB PHOTOMAN</span><h2>How can we help?</h2><p>Find an answer or contact our team.</p></div>
+        <button class="mib-support-close" type="button" aria-label="Close support panel">×</button>
+      </div>
+      <div class="mib-support-content">
+        <h3>Frequently asked questions</h3>
+        <details><summary>How do I book an event?</summary><p>Open the Book page, choose a package, select an available date and time, complete your event details, then submit your booking request.</p></details>
+        <details><summary>When is my booking confirmed?</summary><p>Your booking remains pending until the MIB Photoman team reviews and approves your request. Check My Bookings for updates.</p></details>
+        <details><summary>How do I pay?</summary><p>Open your booking details to view the payment instructions. Submit your payment reference or proof when requested.</p></details>
+        <details><summary>Can I cancel or reschedule?</summary><p>Open My Bookings and use the available request option on the booking. The team will review your request.</p></details>
+        <div class="mib-support-contact">
+          <strong>Still need help?</strong>
+          <a href="mailto:hello@mibphotoman.com?subject=MIB%20Photoman%20Customer%20Support">Email hello@mibphotoman.com</a>
+          <a href="tel:+639666794369">Call 0966 679 4369</a>
+          <a href="tel:+639271850984">Call 0927 185 0984</a>
+        </div>
+      </div>
+    </section>`;
+  document.body.appendChild(root);
+  const trigger = root.querySelector('.mib-support-trigger');
+  const panel = root.querySelector('.mib-support-panel');
+  const close = root.querySelector('.mib-support-close');
+  const setOpen = (open) => {
+    panel.hidden = !open;
+    trigger.setAttribute('aria-expanded', String(open));
+    trigger.setAttribute('aria-label', open ? 'Close customer support' : 'Open customer support');
+  };
+  trigger.addEventListener('click', () => setOpen(panel.hidden));
+  close.addEventListener('click', () => setOpen(false));
+  document.addEventListener('click', (event) => {
+    if (!root.contains(event.target)) setOpen(false);
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') setOpen(false);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => { renderHeader(); renderFooter(); observeReveal(); initPasswordVisibility(); initSupportWidget(); });
