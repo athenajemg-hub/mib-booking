@@ -6,13 +6,13 @@
   const PAY_LABEL = { unpaid: 'Unpaid', proof_sent: 'Verify', deposit_paid: 'Deposit paid', paid: 'Paid' };
 
   $('admin-role').textContent = isAdmin ? 'Administrator' : 'Staff';
-  if (!isAdmin) $('manage-tab').style.display = 'none';
+  if (!isAdmin) { $('manage-tab').style.display = 'none'; $('audit-tab').style.display = 'none'; }
 
   /* ---- Tabs ---- */
-  const loaders = { dash: loadDash, reservations: loadReservations, calendar: loadCalendar, manage: loadManage };
+  const loaders = { dash: loadDash, reservations: loadReservations, calendar: loadCalendar, audit: loadAudit, manage: loadManage };
   document.querySelectorAll('.tab').forEach((t) => (t.onclick = () => {
     document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('active', x === t));
-    ['dash', 'reservations', 'calendar', 'manage'].forEach((k) => ($('tab-' + k).hidden = k !== t.dataset.tab));
+    ['dash', 'reservations', 'calendar', 'audit', 'manage'].forEach((k) => ($('tab-' + k).hidden = k !== t.dataset.tab));
     loaders[t.dataset.tab]();
   }));
 
@@ -90,6 +90,29 @@
 
   $('cal-prev').onclick = () => { calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1); loadCalendar(); };
   $('cal-next').onclick = () => { calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1); loadCalendar(); };
+
+
+  /* ---- Admin audit history ---- */
+  async function loadAudit() {
+    try {
+      const rows = await api('/admin/audit-logs');
+      if (!rows.length) {
+        $('audit-table').innerHTML = '<div class="empty">No administrative activity has been recorded yet.</div>';
+        return;
+      }
+      $('audit-table').innerHTML = `<div class="table-wrap"><table>
+        <thead><tr><th>Date &amp; time</th><th>Performed by</th><th>Role</th><th>Action</th><th>Related record</th><th>Details</th></tr></thead>
+        <tbody>${rows.map((r) => {
+          const when = new Date(r.created_at).toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' });
+          const details = r.details && Object.keys(r.details).length ? JSON.stringify(r.details) : '—';
+          return `<tr><td>${esc(when)}</td><td><strong>${esc(r.actor_name)}</strong></td>
+            <td>${esc(r.actor_role)}</td><td>${esc(r.action.replace(/[._]/g, ' '))}</td>
+            <td>${esc(r.entity_type)}${r.entity_id ? ' #' + esc(r.entity_id) : ''}</td>
+            <td><small>${esc(details)}</small></td></tr>`;
+        }).join('')}</tbody></table></div>`;
+    } catch (e) { toast(e.message, true); }
+  }
+  $('audit-refresh').onclick = loadAudit;
 
   /* ---- Reservations / approval workflow ---- */
   async function loadReservations() {
