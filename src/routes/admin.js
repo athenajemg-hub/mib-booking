@@ -89,6 +89,7 @@ router.post('/bookings/:id/decision', wrap(async (req, res) => {
 router.post('/bookings/:id/assign', wrap(async (req, res) => {
   const staffId = req.body.staff_id ? +req.body.staff_id : null;
   await query('UPDATE bookings SET assigned_to=$1 WHERE id=$2', [staffId, +req.params.id]);
+  await recordAudit(req, 'booking.assigned', 'booking', +req.params.id, { assigned_staff_id: staffId });
   res.json({ ok: true });
 }));
 
@@ -117,6 +118,7 @@ router.post('/bookings/:id/change', wrap(async (req, res) => {
       headline = 'Your change request was declined. Your original booking stays as it is.';
     }
     await client.query('COMMIT');
+    await recordAudit(req, `booking.${b.change_type}_request_${decision === 'approve' ? 'approved' : 'rejected'}`, 'booking', id);
     notifyBooking(id, headline).catch(console.error);
     res.json({ ok: true });
   } catch (e) {
@@ -148,6 +150,7 @@ router.post('/bookings/:id/payment', wrap(async (req, res) => {
     await query('DELETE FROM payment_proofs WHERE booking_id=$1', [id]);
     headline = "We couldn't verify your payment. Please check the details and submit them again.";
   } else return res.status(400).json({ error: 'Invalid action.' });
+  await recordAudit(req, `payment.${action}`, 'booking', id, { payment_status: action === 'reject' ? 'unpaid' : action === 'mark_paid' ? 'paid' : 'deposit_paid' });
   notifyBooking(id, headline).catch(console.error);
   res.json({ ok: true });
 }));
