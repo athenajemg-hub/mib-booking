@@ -6,9 +6,9 @@ const { sign, auth } = require('../middleware/auth');
 const { sendMail, emailConfigured } = require('../mailer');
 const { wrap, baseUrl } = require('../lib');
 
-const validName = (value) => typeof value === 'string' && value.trim().length >= 20 && value.trim().length <= 40;
-const validPassword = (value) => typeof value === 'string' && value.length >= 8 && value.length <= 16 && !/\\s/.test(value);
-const validPhone = (value) => !value || (typeof value === 'string' && /^09\\d{9}$/.test(value.trim()));
+const validName = (value) => typeof value === 'string' && value.trim().length >= 1 && value.trim().length <= 40;
+const validPassword = (value) => typeof value === 'string' && value.length >= 8 && value.length <= 16 && !/\s/.test(value);
+const validPhone = (value) => !value || (typeof value === 'string' && /^09\d{9}$/.test(value.trim()));
 
 const pub = (u) => ({ id: u.id, name: u.name, email: u.email, phone: u.phone, role: u.role, notify_email: u.notify_email, email_verified: u.email_verified });
 
@@ -22,7 +22,7 @@ async function sendVerification(req, user, token) {
 router.post('/register', wrap(async (req, res) => {
   const { name, email, phone, password } = req.body;
   if (!name?.trim() || !email || !password) return res.status(400).json({ error: 'Name, email and password are required.' });
-  if (!validName(name)) return res.status(400).json({ error: 'Full name must be 20 to 40 characters.' });
+  if (!validName(name)) return res.status(400).json({ error: 'Full name must be 1 to 40 characters.' });
   if (email.length > 160 || !/^\S+@\S+\.\S+$/.test(email)) return res.status(400).json({ error: 'Please enter a valid email address of no more than 160 characters.' });
   if (!validPassword(password)) return res.status(400).json({ error: 'Password must be 8 to 16 characters and cannot contain spaces.' });
   if (!validPhone(phone)) return res.status(400).json({ error: 'Enter a valid Philippine mobile number (11 digits, starting with 09).' });
