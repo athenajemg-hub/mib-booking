@@ -23,6 +23,22 @@
     } catch (err) { toast(err.message, true); }
   };
 
+  // Prevent spaces in the registration password as the user types or pastes.
+  const registerPassword = document.getElementById('r-pass');
+  registerPassword.addEventListener('keydown', (e) => {
+    if (e.key === ' ' || e.code === 'Space') e.preventDefault();
+  });
+  registerPassword.addEventListener('input', () => {
+    const start = registerPassword.selectionStart;
+    const before = registerPassword.value;
+    const after = before.replace(/\\s/g, '');
+    if (before !== after) {
+      registerPassword.value = after;
+      const pos = Math.max(0, start - (before.slice(0, start).length - before.slice(0, start).replace(/\\s/g, '').length));
+      registerPassword.setSelectionRange(pos, pos);
+    }
+  });
+
   forms.register.onsubmit = async (e) => {
     e.preventDefault();
     try {
