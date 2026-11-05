@@ -300,6 +300,29 @@ td input[type=number] { width: 96px; }
 .toolbar select { width: auto; }
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 
+/* ---------- Admin monthly calendar ---------- */
+.calendar-toolbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.2rem; }
+.calendar-toolbar h3 { text-align:center; }
+.admin-calendar { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; }
+.admin-cal-weekday { text-align:center; font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em; color:var(--mute); padding:.5rem 0; }
+.admin-cal-day { min-width:0; min-height:112px; padding:.55rem; border:1px solid var(--hair); border-radius:10px; background:var(--paper); }
+.admin-cal-day.is-today { outline:2px solid var(--ink); outline-offset:-2px; }
+.admin-cal-date { display:block; margin-bottom:.45rem; font-size:.85rem; }
+.admin-cal-events { display:grid; gap:.35rem; }
+.admin-cal-event { min-width:0; display:grid; gap:1px; padding:.35rem .4rem; border-left:3px solid var(--ink); background:var(--soft); font-size:.68rem; line-height:1.35; overflow-wrap:anywhere; }
+.admin-cal-event.pending { border-left-style:dashed; }
+.admin-cal-event.rejected, .admin-cal-event.cancelled { opacity:.55; }
+.admin-cal-event b, .admin-cal-event small { display:block; font-size:inherit; }
+.admin-cal-event small { color:var(--mute); }
+.admin-cal-none { color:var(--mute); font-size:.7rem; }
+@media (max-width:700px) {
+  .admin-calendar { gap:3px; }
+  .admin-cal-day { min-height:82px; padding:.3rem; border-radius:6px; }
+  .admin-cal-event { padding:.25rem; font-size:.58rem; }
+  .admin-cal-event small { display:none; }
+  .admin-cal-weekday { font-size:.58rem; }
+}
+
 /* ---------- Modal & toast ---------- */
 .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); display: grid; place-items: center; z-index: 100; padding: 1rem; animation: fade .25s; }
 .modal { background: #fff; border-radius: var(--r-lg); padding: 2rem; width: min(460px, 100%); animation: rise .4s var(--ease); }
