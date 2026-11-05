@@ -19,10 +19,23 @@
   <div class="tabs">
     <button class="tab active" data-tab="dash">Dashboard</button>
     <button class="tab" data-tab="reservations">Reservations</button>
+    <button class="tab" data-tab="calendar">Calendar</button>
     <button class="tab" data-tab="manage" id="manage-tab">Services &amp; capacity</button>
   </div>
 
   <div id="tab-dash"></div>
+
+  <div id="tab-calendar" hidden>
+    <div class="panel">
+      <div class="calendar-toolbar">
+        <button class="btn btn-sm btn-ghost" id="cal-prev" type="button" aria-label="Previous month">←</button>
+        <h3 id="cal-title" aria-live="polite"></h3>
+        <button class="btn btn-sm btn-ghost" id="cal-next" type="button" aria-label="Next month">→</button>
+      </div>
+      <div class="admin-calendar" id="admin-calendar"></div>
+      <p class="muted small" style="margin-top:1rem">Calendar shows reservations and their current status. Select the Reservations tab to manage or update a booking.</p>
+    </div>
+  </div>
 
   <div id="tab-reservations" hidden>
     <div class="toolbar">
