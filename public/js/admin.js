@@ -55,7 +55,7 @@
 
   async function loadCalendar() {
     try {
-      if (!calendarRows) calendarRows = await api('/admin/bookings');
+      calendarRows = await api('/admin/bookings');
       renderCalendar();
     } catch (e) { toast(e.message, true); }
   }
